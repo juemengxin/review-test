@@ -1,0 +1,26 @@
+name: Gemini代码自动评审
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+# 关键：配置足够的权限
+permissions:
+  pull-requests: write  # 允许评论PR
+  contents: write        # 允许读取代码Diff
+  statuses: write       # 可选：如需更新Commit状态
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 使用自定义的千问Code Review Action
+      - name: AI代码评审
+        uses: imxty/qw-codereview@v2
+        with:
+          qianwen-api-key: ${{ secrets.GEMINI_API_KEY }}  # 千问API Key（需在仓库Secrets中配置）
+          qianwen-model: gemini-3.5-flash  # 可选：qwen-plus/qwen-max
+          review-comment-title: 🤖 代码评审意见
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # 默认令牌（已配置权限）
